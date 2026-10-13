@@ -1,0 +1,1242 @@
+{
+  "tools": [
+    {
+      "name": "list_calls",
+      "icons": [
+        {
+          "src": "https://mcp.callsyncapp.com/assets/branding/logo-icon.png",
+          "mimeType": "image/png",
+          "sizes": [
+            "512x512"
+          ]
+        },
+        {
+          "src": "https://mcp.callsyncapp.com/assets/branding/logo-icon.svg",
+          "mimeType": "image/svg+xml",
+          "sizes": [
+            "any"
+          ]
+        }
+      ],
+      "description": "Find calls with compact metadata only. Use get_call_details for full transcript/analysis and get_recording_link for audio. Supports date range, employee, review status, direction, search and pagination.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "page": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 10000,
+            "default": 1
+          },
+          "limit": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 10,
+            "default": 5
+          },
+          "search": {
+            "type": "string",
+            "description": "Optional search query to filter calls by caller phone, caller name, call note, employee name, caller note, or AI summary/transcription/reason/sentiment."
+          },
+          "direction": {
+            "type": "string",
+            "enum": [
+              "incoming",
+              "outgoing",
+              "missed",
+              "rejected",
+              "blocked",
+              "unknown"
+            ]
+          },
+          "employee_id": {
+            "type": "integer",
+            "minimum": 1,
+            "description": "Employee ID from list_employees."
+          },
+          "reviewed": {
+            "type": "boolean"
+          },
+          "after": {
+            "type": "string",
+            "description": "Inclusive start ISO timestamp with timezone."
+          },
+          "before": {
+            "type": "string",
+            "description": "Exclusive end ISO timestamp with timezone."
+          }
+        }
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "openWorldHint": false
+      }
+    },
+    {
+      "name": "list_callers",
+      "icons": [
+        {
+          "src": "https://mcp.callsyncapp.com/assets/branding/logo-icon.png",
+          "mimeType": "image/png",
+          "sizes": [
+            "512x512"
+          ]
+        },
+        {
+          "src": "https://mcp.callsyncapp.com/assets/branding/logo-icon.svg",
+          "mimeType": "image/svg+xml",
+          "sizes": [
+            "any"
+          ]
+        }
+      ],
+      "description": "List recent unique callers (limit 20). Supports search.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "page": {
+            "type": "number",
+            "default": 1,
+            "description": "The page number to retrieve, for pagination (1-based)."
+          },
+          "search": {
+            "type": "string",
+            "description": "Optional search query to filter callers by phone number, name, or identity notes."
+          }
+        }
+      },
+      "outputSchema": {
+        "type": "object",
+        "properties": {
+          "data": {
+            "type": "array",
+            "description": "List of callers with aggregate activity stats.",
+            "items": {
+              "type": "object",
+              "properties": {
+                "phone": {
+                  "type": "string",
+                  "description": "Phone number of the caller."
+                },
+                "name": {
+                  "type": "string",
+                  "description": "Name of the caller (defaults to 'Unknown')."
+                },
+                "note": {
+                  "type": [
+                    "string",
+                    "null"
+                  ],
+                  "description": "General contact note/context about the caller."
+                },
+                "labels": {
+                  "type": [
+                    "array",
+                    "null"
+                  ],
+                  "items": {
+                    "type": "string"
+                  },
+                  "description": "Tags/labels assigned to this caller."
+                },
+                "activity": {
+                  "type": "object",
+                  "description": "Aggregate call activity statistics.",
+                  "properties": {
+                    "total_calls": {
+                      "type": "number",
+                      "description": "Total number of calls tracked from this caller."
+                    },
+                    "total_duration": {
+                      "type": "string",
+                      "description": "Sum of call durations with suffix 's' (e.g. '120s')."
+                    },
+                    "last_interaction": {
+                      "type": "string",
+                      "description": "ISO 8601 UTC timestamp of the most recent interaction."
+                    },
+                    "last_type": {
+                      "type": "string",
+                      "description": "Direction of the last call ('incoming' or 'outgoing')."
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "total": {
+            "type": "number",
+            "description": "Total number of callers matching the search."
+          },
+          "page": {
+            "type": "number",
+            "description": "Current page index."
+          }
+        }
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "openWorldHint": false
+      }
+    },
+    {
+      "name": "list_employees",
+      "icons": [
+        {
+          "src": "https://mcp.callsyncapp.com/assets/branding/logo-icon.png",
+          "mimeType": "image/png",
+          "sizes": [
+            "512x512"
+          ]
+        },
+        {
+          "src": "https://mcp.callsyncapp.com/assets/branding/logo-icon.svg",
+          "mimeType": "image/svg+xml",
+          "sizes": [
+            "any"
+          ]
+        }
+      ],
+      "description": "List employees/devices in the org. Shows name, phone, last sync, battery, device model, archived status.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "search": {
+            "type": "string",
+            "description": "Optional search query to filter employees by name, phone number, device phone, email, or device model."
+          },
+          "include_archived": {
+            "type": "boolean",
+            "default": false,
+            "description": "Whether to include archived employees in the returned list."
+          }
+        }
+      },
+      "outputSchema": {
+        "type": "object",
+        "properties": {
+          "data": {
+            "type": "array",
+            "description": "List of employee sync status records.",
+            "items": {
+              "type": "object",
+              "properties": {
+                "id": {
+                  "type": "number",
+                  "description": "Unique database ID of the employee record."
+                },
+                "name": {
+                  "type": "string",
+                  "description": "Full name of the employee."
+                },
+                "phone": {
+                  "type": [
+                    "string",
+                    "null"
+                  ],
+                  "description": "Employee personal or business phone number."
+                },
+                "device_phone": {
+                  "type": [
+                    "string",
+                    "null"
+                  ],
+                  "description": "Phone number of the active sync device."
+                },
+                "email": {
+                  "type": [
+                    "string",
+                    "null"
+                  ],
+                  "description": "Email address of the employee."
+                },
+                "device_model": {
+                  "type": [
+                    "string",
+                    "null"
+                  ],
+                  "description": "Synced device model name (e.g. 'Samsung Galaxy S23')."
+                },
+                "os_version": {
+                  "type": [
+                    "string",
+                    "null"
+                  ],
+                  "description": "Operating system version (e.g., 'Android 14')."
+                },
+                "battery_level": {
+                  "type": [
+                    "number",
+                    "null"
+                  ],
+                  "description": "Battery level percentage (0 to 100)."
+                },
+                "last_sync": {
+                  "type": [
+                    "string",
+                    "null"
+                  ],
+                  "description": "ISO 8601 UTC timestamp of the last successful sync run."
+                },
+                "is_archived": {
+                  "type": "boolean",
+                  "description": "Archived status of the employee."
+                },
+                "created_at": {
+                  "type": "string",
+                  "description": "ISO 8601 UTC timestamp of when employee was registered."
+                }
+              }
+            }
+          },
+          "total": {
+            "type": "number",
+            "description": "Total number of employees matching the active filters."
+          }
+        }
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "openWorldHint": false
+      }
+    },
+    {
+      "name": "update_call",
+      "icons": [
+        {
+          "src": "https://mcp.callsyncapp.com/assets/branding/logo-icon.png",
+          "mimeType": "image/png",
+          "sizes": [
+            "512x512"
+          ]
+        },
+        {
+          "src": "https://mcp.callsyncapp.com/assets/branding/logo-icon.svg",
+          "mimeType": "image/svg+xml",
+          "sizes": [
+            "any"
+          ]
+        }
+      ],
+      "description": "Update call log fields: note and/or reviewed status.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "call_id": {
+            "type": "number",
+            "description": "The unique ID of the call log entry to update."
+          },
+          "note": {
+            "type": "string",
+            "description": "The custom review note text to set/update on the call log."
+          },
+          "reviewed": {
+            "type": "boolean",
+            "description": "Whether the call has been reviewed and marked as resolved."
+          }
+        },
+        "required": [
+          "call_id"
+        ]
+      },
+      "outputSchema": {
+        "type": "object",
+        "properties": {
+          "message": {
+            "type": "string",
+            "description": "Success message confirming the update."
+          }
+        },
+        "required": [
+          "message"
+        ]
+      },
+      "annotations": {
+        "readOnlyHint": false,
+        "destructiveHint": false,
+        "openWorldHint": false
+      }
+    },
+    {
+      "name": "update_identity",
+      "icons": [
+        {
+          "src": "https://mcp.callsyncapp.com/assets/branding/logo-icon.png",
+          "mimeType": "image/png",
+          "sizes": [
+            "512x512"
+          ]
+        },
+        {
+          "src": "https://mcp.callsyncapp.com/assets/branding/logo-icon.svg",
+          "mimeType": "image/svg+xml",
+          "sizes": [
+            "any"
+          ]
+        }
+      ],
+      "description": "Update or create an identity/contact (name, labels, note)",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "phone": {
+            "type": "string",
+            "description": "The phone number of the contact identity to create or update."
+          },
+          "name": {
+            "type": "string",
+            "description": "The full name to assign to this contact."
+          },
+          "labels": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "description": "An array of label tags for organizing the contact (e.g. ['Hot Lead', 'VIP'])."
+          },
+          "note": {
+            "type": "string",
+            "description": "A general note or background text about the contact."
+          }
+        },
+        "required": [
+          "phone"
+        ]
+      },
+      "outputSchema": {
+        "type": "object",
+        "properties": {
+          "message": {
+            "type": "string",
+            "description": "Success message confirming the identity update and linking."
+          }
+        },
+        "required": [
+          "message"
+        ]
+      },
+      "annotations": {
+        "readOnlyHint": false,
+        "destructiveHint": false,
+        "openWorldHint": false
+      }
+    },
+    {
+      "name": "archive_identity",
+      "icons": [
+        {
+          "src": "https://mcp.callsyncapp.com/assets/branding/logo-icon.png",
+          "mimeType": "image/png",
+          "sizes": [
+            "512x512"
+          ]
+        },
+        {
+          "src": "https://mcp.callsyncapp.com/assets/branding/logo-icon.svg",
+          "mimeType": "image/svg+xml",
+          "sizes": [
+            "any"
+          ]
+        }
+      ],
+      "description": "Archive a caller/contact identity by phone number. Hides them from active contact lists.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "phone": {
+            "type": "string",
+            "description": "The phone number of the contact identity to archive."
+          }
+        },
+        "required": [
+          "phone"
+        ]
+      },
+      "outputSchema": {
+        "type": "object",
+        "properties": {
+          "message": {
+            "type": "string",
+            "description": "Success message confirming the contact has been archived."
+          }
+        },
+        "required": [
+          "message"
+        ]
+      },
+      "annotations": {
+        "readOnlyHint": false,
+        "destructiveHint": false,
+        "openWorldHint": false
+      }
+    },
+    {
+      "name": "trigger_analysis",
+      "icons": [
+        {
+          "src": "https://mcp.callsyncapp.com/assets/branding/logo-icon.png",
+          "mimeType": "image/png",
+          "sizes": [
+            "512x512"
+          ]
+        },
+        {
+          "src": "https://mcp.callsyncapp.com/assets/branding/logo-icon.svg",
+          "mimeType": "image/svg+xml",
+          "sizes": [
+            "any"
+          ]
+        }
+      ],
+      "description": "Trigger AI transcription and analysis for a recorded call. Costs transcription credits: 1 credit per 15 seconds of audio (minimum 1) \u2014 the org's balance is verified against this call's duration before queueing. Processing is async; fetch the result via list_calls after a minute or two. Use get_account_status to check the remaining credit balance.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "call_id": {
+            "type": "number",
+            "description": "The unique ID of the call log entry containing a recording file URL."
+          }
+        },
+        "required": [
+          "call_id"
+        ]
+      },
+      "outputSchema": {
+        "type": "object",
+        "properties": {
+          "message": {
+            "type": "string",
+            "description": "Success message indicating the analysis job has been queued and the estimated credit cost."
+          }
+        },
+        "required": [
+          "message"
+        ]
+      },
+      "annotations": {
+        "readOnlyHint": false,
+        "destructiveHint": false,
+        "openWorldHint": false
+      }
+    },
+    {
+      "name": "get_account_status",
+      "icons": [
+        {
+          "src": "https://mcp.callsyncapp.com/assets/branding/logo-icon.png",
+          "mimeType": "image/png",
+          "sizes": [
+            "512x512"
+          ]
+        },
+        {
+          "src": "https://mcp.callsyncapp.com/assets/branding/logo-icon.svg",
+          "mimeType": "image/svg+xml",
+          "sizes": [
+            "any"
+          ]
+        }
+      ],
+      "description": "Get the organization's account status: whether AI transcription is enabled, remaining transcription credits (1 credit = 15 seconds of audio), auto-transcribe setting, and timezone. Use this to answer questions like 'how many credits do I have left?' or before triggering analysis on long calls.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {}
+      },
+      "outputSchema": {
+        "type": "object",
+        "properties": {
+          "organization": {
+            "type": "string",
+            "description": "Organization name."
+          },
+          "timezone": {
+            "type": "string",
+            "description": "Organization's local timezone."
+          },
+          "transcription_enabled": {
+            "type": "boolean",
+            "description": "Whether AI transcription is enabled for this organization."
+          },
+          "auto_transcribe": {
+            "type": "boolean",
+            "description": "Whether new recorded calls are transcribed automatically."
+          },
+          "transcription_credits": {
+            "type": "number",
+            "description": "Remaining transcription credits."
+          },
+          "approx_audio_minutes_remaining": {
+            "type": "number",
+            "description": "Approximate minutes of call audio the remaining credits cover."
+          },
+          "credit_pricing": {
+            "type": "string",
+            "description": "How credits are consumed."
+          }
+        },
+        "required": [
+          "transcription_enabled",
+          "transcription_credits"
+        ]
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "openWorldHint": false
+      }
+    },
+    {
+      "name": "list_crm_config",
+      "icons": [
+        {
+          "src": "https://mcp.callsyncapp.com/assets/branding/logo-icon.png",
+          "mimeType": "image/png",
+          "sizes": [
+            "512x512"
+          ]
+        },
+        {
+          "src": "https://mcp.callsyncapp.com/assets/branding/logo-icon.svg",
+          "mimeType": "image/svg+xml",
+          "sizes": [
+            "any"
+          ]
+        }
+      ],
+      "description": "Returns all CRM configuration: available pipeline stages, priorities, segments, lead sources, and all existing contact labels/tags. Call this FIRST before creating or updating contacts so you know valid stage_id, priority_id, segment_id, source_id values and existing label names.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {}
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "openWorldHint": false
+      }
+    },
+    {
+      "name": "list_crm_contacts",
+      "icons": [
+        {
+          "src": "https://mcp.callsyncapp.com/assets/branding/logo-icon.png",
+          "mimeType": "image/png",
+          "sizes": [
+            "512x512"
+          ]
+        },
+        {
+          "src": "https://mcp.callsyncapp.com/assets/branding/logo-icon.svg",
+          "mimeType": "image/svg+xml",
+          "sizes": [
+            "any"
+          ]
+        }
+      ],
+      "description": "List CRM contacts with identity details, pipeline status, and labels. Supports filtering by stage, priority, segment, label, pipeline status, and free text search. Use list_crm_config first to see valid filter values.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "page": {
+            "type": "number",
+            "default": 1,
+            "description": "Page number (1-based)."
+          },
+          "perPage": {
+            "type": "number",
+            "default": 20,
+            "description": "Results per page."
+          },
+          "search": {
+            "type": "string",
+            "description": "Free text search across name, phone, email, and sales note."
+          },
+          "stage_id": {
+            "type": "string",
+            "description": "Filter by pipeline stage ID. Use list_crm_config to see available stage IDs."
+          },
+          "priority_id": {
+            "type": "string",
+            "description": "Filter by priority ID. Use list_crm_config to see available priority IDs."
+          },
+          "segment_id": {
+            "type": "string",
+            "description": "Filter by segment/area ID. Use list_crm_config to see available segment IDs."
+          },
+          "label": {
+            "type": "string",
+            "description": "Filter contacts that have this specific label/tag."
+          },
+          "is_in_pipeline": {
+            "type": "boolean",
+            "description": "Filter by pipeline status. true = active pipeline leads, false = contacts not in pipeline."
+          },
+          "sortField": {
+            "type": "string",
+            "default": "updated_at",
+            "description": "Field to sort by."
+          },
+          "sortDir": {
+            "type": "string",
+            "enum": [
+              "asc",
+              "desc"
+            ],
+            "default": "desc"
+          }
+        }
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "openWorldHint": false
+      }
+    },
+    {
+      "name": "create_crm_contact",
+      "icons": [
+        {
+          "src": "https://mcp.callsyncapp.com/assets/branding/logo-icon.png",
+          "mimeType": "image/png",
+          "sizes": [
+            "512x512"
+          ]
+        },
+        {
+          "src": "https://mcp.callsyncapp.com/assets/branding/logo-icon.svg",
+          "mimeType": "image/svg+xml",
+          "sizes": [
+            "any"
+          ]
+        }
+      ],
+      "description": "Create a new CRM contact. If the phone number already exists in identities, it links to the existing identity; otherwise creates a new one. Use list_crm_config first to get valid stage_id, priority_id, segment_id, source_id values.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string",
+            "description": "Contact's full name."
+          },
+          "phone": {
+            "type": "string",
+            "description": "Contact's phone number."
+          },
+          "email": {
+            "type": "string",
+            "description": "Contact's email address."
+          },
+          "about": {
+            "type": "string",
+            "description": "Brief description/bio."
+          },
+          "sales_note": {
+            "type": "string",
+            "description": "Sales note (stored as identity 'note' field)."
+          },
+          "labels": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "description": "Tags/labels. Use list_crm_config to see existing labels."
+          },
+          "segment_id": {
+            "type": "string",
+            "description": "Segment ID. Use list_crm_config."
+          },
+          "source_id": {
+            "type": "string",
+            "description": "Lead source ID. Use list_crm_config."
+          },
+          "budget": {
+            "type": "string",
+            "description": "Budget value as string."
+          },
+          "priority_id": {
+            "type": "string",
+            "description": "Priority ID. Use list_crm_config."
+          },
+          "is_in_pipeline": {
+            "type": "boolean",
+            "description": "Active pipeline lead status."
+          },
+          "stage_id": {
+            "type": "string",
+            "description": "Pipeline stage ID. Use list_crm_config."
+          },
+          "company": {
+            "type": "string",
+            "description": "Company/business name."
+          }
+        }
+      },
+      "annotations": {
+        "readOnlyHint": false,
+        "destructiveHint": false,
+        "openWorldHint": false
+      }
+    },
+    {
+      "name": "update_crm_contact",
+      "icons": [
+        {
+          "src": "https://mcp.callsyncapp.com/assets/branding/logo-icon.png",
+          "mimeType": "image/png",
+          "sizes": [
+            "512x512"
+          ]
+        },
+        {
+          "src": "https://mcp.callsyncapp.com/assets/branding/logo-icon.svg",
+          "mimeType": "image/svg+xml",
+          "sizes": [
+            "any"
+          ]
+        }
+      ],
+      "description": "Update a CRM contact by id. Identity fields auto-route to identities table, CRM fields to crm_contacts. Returns the updated contact view.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "number",
+            "description": "CRM contact ID to update."
+          },
+          "name": {
+            "type": "string"
+          },
+          "phone": {
+            "type": "string"
+          },
+          "email": {
+            "type": "string"
+          },
+          "about": {
+            "type": "string"
+          },
+          "sales_note": {
+            "type": "string",
+            "description": "Maps to identity 'note' field."
+          },
+          "labels": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "description": "Tags/labels. Use list_crm_config."
+          },
+          "is_starred": {
+            "type": "boolean"
+          },
+          "is_archived": {
+            "type": "boolean"
+          },
+          "segment_id": {
+            "type": "string",
+            "description": "Use list_crm_config."
+          },
+          "source_id": {
+            "type": "string",
+            "description": "Use list_crm_config."
+          },
+          "budget": {
+            "type": "string"
+          },
+          "priority_id": {
+            "type": "string",
+            "description": "Use list_crm_config."
+          },
+          "is_in_pipeline": {
+            "type": "boolean"
+          },
+          "stage_id": {
+            "type": "string",
+            "description": "Use list_crm_config."
+          },
+          "company": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "id"
+        ]
+      },
+      "annotations": {
+        "readOnlyHint": false,
+        "destructiveHint": false,
+        "openWorldHint": false
+      }
+    },
+    {
+      "name": "list_crm_tasks",
+      "icons": [
+        {
+          "src": "https://mcp.callsyncapp.com/assets/branding/logo-icon.png",
+          "mimeType": "image/png",
+          "sizes": [
+            "512x512"
+          ]
+        },
+        {
+          "src": "https://mcp.callsyncapp.com/assets/branding/logo-icon.svg",
+          "mimeType": "image/svg+xml",
+          "sizes": [
+            "any"
+          ]
+        }
+      ],
+      "description": "List CRM tasks. Supports filtering by contact, status, and due date.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "person_id": {
+            "type": "number",
+            "description": "Optional contact ID filter."
+          },
+          "status": {
+            "type": "string",
+            "description": "Optional status filter (PENDING, IN_PROGRESS, COMPLETED, CANCELLED)."
+          },
+          "due_date": {
+            "type": "string",
+            "description": "Optional YYYY-MM-DD date filter."
+          }
+        }
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "openWorldHint": false
+      }
+    },
+    {
+      "name": "create_crm_task",
+      "icons": [
+        {
+          "src": "https://mcp.callsyncapp.com/assets/branding/logo-icon.png",
+          "mimeType": "image/png",
+          "sizes": [
+            "512x512"
+          ]
+        },
+        {
+          "src": "https://mcp.callsyncapp.com/assets/branding/logo-icon.svg",
+          "mimeType": "image/svg+xml",
+          "sizes": [
+            "any"
+          ]
+        }
+      ],
+      "description": "Create a CRM task linked to a contact. Always parse any date/time mentions from the user (e.g., 'tomorrow', 'next Monday', 'at 4 PM') and set 'due_date' (YYYY-MM-DD) and 'due_time' (HH:MM:SS). If the user mentions a reminder or asks to be reminded, set 'show_reminder' to true and 'reminder_minutes_before' to an appropriate value (e.g., 15).",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "person_id": {
+            "type": "number",
+            "description": "CRM Contact ID to link this task to (from list_crm_contacts)."
+          },
+          "type": {
+            "type": "string",
+            "enum": [
+              "TO_DO",
+              "CALL",
+              "MEETING",
+              "EMAIL",
+              "FOLLOW_UP"
+            ],
+            "default": "TO_DO",
+            "description": "Type of task."
+          },
+          "description": {
+            "type": "string",
+            "description": "Task description/details."
+          },
+          "due_date": {
+            "type": "string",
+            "description": "Due date in YYYY-MM-DD format. Always parse from user expressions like 'tomorrow', 'next week', etc."
+          },
+          "due_time": {
+            "type": "string",
+            "description": "Due time in HH:MM:SS format. Defaults to '10:00:00' if a date is mentioned without a time to ensure reminders trigger during business hours."
+          },
+          "priority_id": {
+            "type": "string",
+            "description": "Priority ID. Use list_crm_config to see available priorities."
+          },
+          "show_reminder": {
+            "type": "boolean",
+            "default": false,
+            "description": "Set to true if user asks to be reminded or notified."
+          },
+          "reminder_minutes_before": {
+            "type": "number",
+            "default": 0,
+            "description": "Minutes before due time to trigger reminder (e.g. 15, 30)."
+          }
+        },
+        "required": [
+          "person_id"
+        ]
+      },
+      "annotations": {
+        "readOnlyHint": false,
+        "destructiveHint": false,
+        "openWorldHint": false
+      }
+    },
+    {
+      "name": "update_crm_task",
+      "icons": [
+        {
+          "src": "https://mcp.callsyncapp.com/assets/branding/logo-icon.png",
+          "mimeType": "image/png",
+          "sizes": [
+            "512x512"
+          ]
+        },
+        {
+          "src": "https://mcp.callsyncapp.com/assets/branding/logo-icon.svg",
+          "mimeType": "image/svg+xml",
+          "sizes": [
+            "any"
+          ]
+        }
+      ],
+      "description": "Update a CRM task by id. Auto-sets completed_at timestamp when status changes to COMPLETED.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "number",
+            "description": "Task ID to update."
+          },
+          "type": {
+            "type": "string",
+            "enum": [
+              "TO_DO",
+              "CALL",
+              "MEETING",
+              "EMAIL",
+              "FOLLOW_UP"
+            ]
+          },
+          "description": {
+            "type": "string"
+          },
+          "due_date": {
+            "type": "string"
+          },
+          "due_time": {
+            "type": "string"
+          },
+          "priority_id": {
+            "type": "string"
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "PENDING",
+              "IN_PROGRESS",
+              "COMPLETED",
+              "CANCELLED"
+            ]
+          },
+          "show_reminder": {
+            "type": "boolean"
+          },
+          "reminder_minutes_before": {
+            "type": "number"
+          },
+          "response": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "id"
+        ]
+      },
+      "annotations": {
+        "readOnlyHint": false,
+        "destructiveHint": false,
+        "openWorldHint": false
+      }
+    },
+    {
+      "name": "list_crm_timeline",
+      "icons": [
+        {
+          "src": "https://mcp.callsyncapp.com/assets/branding/logo-icon.png",
+          "mimeType": "image/png",
+          "sizes": [
+            "512x512"
+          ]
+        },
+        {
+          "src": "https://mcp.callsyncapp.com/assets/branding/logo-icon.svg",
+          "mimeType": "image/svg+xml",
+          "sizes": [
+            "any"
+          ]
+        }
+      ],
+      "description": "Fetch unified timeline for a contact. Combines CRM activities AND phone call history (with AI summary, transcription, sentiment) into a single chronological feed. Always provide phone to include call history.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "person_id": {
+            "type": "number",
+            "description": "CRM contact ID."
+          },
+          "phone": {
+            "type": "string",
+            "description": "Contact phone number. IMPORTANT: include this to get call logs with AI analysis in timeline."
+          }
+        },
+        "required": [
+          "person_id"
+        ]
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "openWorldHint": false
+      }
+    },
+    {
+      "name": "create_crm_activity",
+      "icons": [
+        {
+          "src": "https://mcp.callsyncapp.com/assets/branding/logo-icon.png",
+          "mimeType": "image/png",
+          "sizes": [
+            "512x512"
+          ]
+        },
+        {
+          "src": "https://mcp.callsyncapp.com/assets/branding/logo-icon.svg",
+          "mimeType": "image/svg+xml",
+          "sizes": [
+            "any"
+          ]
+        }
+      ],
+      "description": "Log a custom activity for a CRM contact. Activities appear in the contact's timeline.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "person_id": {
+            "type": "number",
+            "description": "CRM Contact ID."
+          },
+          "type": {
+            "type": "string",
+            "description": "Activity type: NOTE, MEETING, EMAIL, CALL, SITE_VISIT, FOLLOW_UP, or custom."
+          },
+          "title": {
+            "type": "string",
+            "description": "Short title for the activity."
+          },
+          "description": {
+            "type": "string",
+            "description": "Detailed notes."
+          },
+          "recording_path": {
+            "type": "string",
+            "description": "Optional recording/attachment URL."
+          },
+          "metadata": {
+            "type": "object",
+            "description": "Optional key-value metadata."
+          }
+        },
+        "required": [
+          "person_id",
+          "type",
+          "title"
+        ]
+      },
+      "annotations": {
+        "readOnlyHint": false,
+        "destructiveHint": false,
+        "openWorldHint": false
+      }
+    },
+    {
+      "name": "get_call_details",
+      "icons": [
+        {
+          "src": "https://mcp.callsyncapp.com/assets/branding/logo-icon.png",
+          "mimeType": "image/png",
+          "sizes": [
+            "512x512"
+          ]
+        },
+        {
+          "src": "https://mcp.callsyncapp.com/assets/branding/logo-icon.svg",
+          "mimeType": "image/svg+xml",
+          "sizes": [
+            "any"
+          ]
+        }
+      ],
+      "description": "Retrieve one call with full available transcript, summary, analysis, contact notes and labels. Audio URLs are retrieved separately.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "call_id": {
+            "type": "integer",
+            "minimum": 1
+          }
+        },
+        "required": [
+          "call_id"
+        ]
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "openWorldHint": false
+      }
+    },
+    {
+      "name": "get_recording_link",
+      "icons": [
+        {
+          "src": "https://mcp.callsyncapp.com/assets/branding/logo-icon.png",
+          "mimeType": "image/png",
+          "sizes": [
+            "512x512"
+          ]
+        },
+        {
+          "src": "https://mcp.callsyncapp.com/assets/branding/logo-icon.svg",
+          "mimeType": "image/svg+xml",
+          "sizes": [
+            "any"
+          ]
+        }
+      ],
+      "description": "Retrieve a playable unlisted recording URL for one call. Anyone holding this URL can play it; it has no expiry.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "call_id": {
+            "type": "integer",
+            "minimum": 1
+          }
+        },
+        "required": [
+          "call_id"
+        ]
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "openWorldHint": false
+      }
+    }
+  ]
+}

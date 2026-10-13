@@ -1,0 +1,8 @@
+{
+  "servers": {
+    "callsync": {
+      "type": "http",
+      "url": "https://mcp.callsyncapp.com/connect"
+    }
+  }
+}
