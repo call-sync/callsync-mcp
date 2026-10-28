@@ -61,11 +61,11 @@ Add it to `.vscode/mcp.json`, then complete the CallSync sign-in:
 
 ### Agent skill (OpenClaw, Hermes Agent and other skill-based agents)
 
-For agents that use skills rather than remote MCP servers, [`skills/callsync`](skills/callsync/SKILL.md) works with the CallSync REST API and a workspace API key in `CALLSYNC_API_KEY` (CallSync dashboard → **API & Apps**). It is also on [ClawHub](https://clawhub.ai/digiheadway/skills/callsync).
+For agents that use skills rather than remote MCP servers, [`skills/callsync`](skills/callsync/SKILL.md) works with the CallSync REST API and a workspace API key in `CALLSYNC_API_KEY` (CallSync dashboard → **API & Apps**). It is also on [ClawHub](https://clawhub.ai/callsync/skills/callsync).
 
 ```bash
 # OpenClaw, from ClawHub
-clawhub install digiheadway/callsync
+clawhub install callsync/callsync
 # Hermes Agent, from this repository
 hermes skills install digiheadway/callsync-mcp/skills/callsync
 ```

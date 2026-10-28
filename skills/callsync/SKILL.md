@@ -1,7 +1,7 @@
 ---
 name: callsync
 description: Look up a team's business calls, recordings and AI call summaries in CallSync, and keep its CRM up to date (contacts, follow-up tasks, notes). Use when the user asks about calls their team made or received, what a customer said, missed calls to return, call summaries, or wants to add a contact, a note or a follow-up task in CallSync.
-version: 1.0.0
+version: 1.0.1
 author: CallSync
 license: MIT
 homepage: https://callsyncapp.com
