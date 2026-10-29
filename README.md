@@ -67,7 +67,7 @@ For agents that use skills rather than remote MCP servers, [`skills/callsync`](s
 # OpenClaw, from ClawHub
 clawhub install callsync/callsync
 # Hermes Agent, from this repository
-hermes skills install digiheadway/callsync-mcp/skills/callsync
+hermes skills install call-sync/callsync-mcp/skills/callsync
 ```
 
 ## Example prompts
